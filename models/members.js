@@ -14,7 +14,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Members.init({
-    m_num: DataTypes.INTEGER,
+    m_num: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    }
+    ,
     m_id: DataTypes.STRING,
     m_password: DataTypes.STRING,
     m_name: DataTypes.STRING,
@@ -23,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     m_updated_at: DataTypes.DATE
   }, {
     sequelize,
+    timestamps: false,
     modelName: 'Members',
   });
   return Members;

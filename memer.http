@@ -1,0 +1,23 @@
+@my_domain="http://localhost:5608/members"
+### 
+# 회원 정보 저장
+POST http://localhost:5608/members/sign
+Content-Type: application/JSON
+
+{
+  "m_id": "test6", 
+  "m_password": "123456",
+  "confirm_password": "123456",
+  "m_name": "test6", 
+  "m_email": "test6"
+}
+
+###
+# 로그인
+POST http://localhost:5608/members/login
+Content-Type: application/JSON
+
+{
+  "m_id": "test6", 
+  "m_password": "123456"
+}
