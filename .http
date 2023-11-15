@@ -21,3 +21,20 @@ Content-Type: application/JSON
   "m_id": "test6", 
   "m_password": "123456"
 }
+
+###
+# 상품 등록
+POST http://localhost:5608/products/
+Content-Type: application/JSON
+
+{
+  "p_name": "sample4", 
+  "p_description": "sample4"
+}
+###
+# 상품 전체 조회
+GET http://localhost:5608/products?category=p_created_at&order=desc
+
+###
+# 상품 상세 조회
+GET http://localhost:5608/products/1

@@ -4,15 +4,8 @@ const router = express.Router(); // router 받아오기
 // const Product = require("../schemas/products.schema.js"); // 스키마 받아오기
 
 // // 1. 상품 작성 API (Create / POST)
-//     - 상품명, 작성 내용, 작성자명, 비밀번호를 **request**에서 전달받기
-//     - 상품은 두 가지 상태, **판매 중(`FOR_SALE`)및 판매 완료(`SOLD_OUT`)** 를 가질 수 있습니다.
-//     - 상품 등록 시 기본 상태는 **판매 중(`FOR_SALE`)** 입니다.
 router.post("/:productId", async (req, res) => {
   try {
-    // if (!req.params.productId) {
-    //   res.status(400).json({ errorMessage: "상품 ID를 입력해주세요." });
-    // }
-
     // body 값 조회
     const { productId } = req.params;
     const { productName, productDescription, productStatus, sellerId, sellerPw, registrationDate } = req.body;
@@ -46,14 +39,7 @@ router.post("/product/", async (req, res) => {
 });
 
 
-
-
-
-
-
 // //  2. 상품 목록 조회 API (Read / GET)
-//     - 상품명, 작성자명, 상품 상태, 작성 날짜 조회하기
-//     - 상품 목록은 작성 날짜를 기준으로 ** 내림차순(최신순) ** 정렬하기
 router.get("/", async (req, res) => {
   // 모든 상품 조회
   const allProduct = await Product.find({}, { productId: 1, productName: 1, productDescription: 1, productStatus: 1, registrationDate: 1 })
@@ -64,7 +50,6 @@ router.get("/", async (req, res) => {
 });
 
 // //  3. 상품 상세 조회 API (Read / GET)
-//     - 상품명, 작성 내용, 작성자명, 상품 상태, 작성 날짜 조회하기
 router.get("/:productId", async (req, res) => {
   try {
     const { productId } = req.params; // params 값 조회
@@ -110,9 +95,6 @@ router.get("/product/", async (req, res) => {
 });
 
 // //  4. 상품 정보 수정 API (Update / PUT)
-//     - 상품명, 작성 내용, 상품 상태, 비밀번호를 **request**에서 전달받기
-//     - 수정할 상품과 비밀번호 일치 여부를 확인한 후, 동일할 때만 글이 **수정**되게 하기
-//     - 선택한 상품이 존재하지 않을 경우, “상품 조회에 실패하였습니다." 메시지 반환하기
 router.put("/product/:productId", async (req, res) => {
   try {
     // ERR 400 : 데이터가 하나라도 입력되지 않은 경우
@@ -180,9 +162,6 @@ router.put("/product/", async (req, res) => {
 });
 
 // //  5. 상품 삭제 API (Delete / DELETE)
-//     - 비밀번호를 **request**에서 전달받기
-//     - 수정할 상품과 비밀번호 일치 여부를 확인한 후, 동일할 때만 글이 **삭제**되게 하기
-//     - 선택한 상품이 존재하지 않을 경우, “상품 조회에 실패하였습니다." 메시지 반환하기
 router.delete("/product/:productId", async (req, res) => {
   try {
     const { productId } = req.params; // params 값 조회

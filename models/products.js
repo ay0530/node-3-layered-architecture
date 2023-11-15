@@ -14,7 +14,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Products.init({
-    p_num: DataTypes.INTEGER,
+    p_num: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     m_num: DataTypes.INTEGER,
     p_name: DataTypes.STRING,
     p_description: DataTypes.STRING,
@@ -23,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     p_updated_at: DataTypes.DATE
   }, {
     sequelize,
+    timestamps: false,
     modelName: 'Products',
   });
   return Products;
