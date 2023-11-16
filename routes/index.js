@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sequelize = require('../models').sequelize;
+const authMiddleware = require('../middlewares/auth-middleware');
 
 // db연결
 sequelize
@@ -15,7 +16,9 @@ sequelize
 const membersRouter = require('./members');
 const productsRouter = require('./products');
 
+router.use("/products", authMiddleware);
 router.use("/members", membersRouter);
+
 router.use("/products", productsRouter);
 
 module.exports = router;

@@ -5,11 +5,11 @@ POST http://localhost:5608/members/sign
 Content-Type: application/JSON
 
 {
-  "m_id": "test6", 
+  "m_id": "test8", 
   "m_password": "123456",
   "confirm_password": "123456",
-  "m_name": "test6", 
-  "m_email": "test6"
+  "m_name": "test8", 
+  "m_email": "test8naver.com"
 }
 
 ###
@@ -23,6 +23,10 @@ Content-Type: application/JSON
 }
 
 ###
+# 마이 페이지
+GET http://localhost:5608/members/me
+
+###
 # 상품 등록
 POST http://localhost:5608/products/
 Content-Type: application/JSON
@@ -33,7 +37,7 @@ Content-Type: application/JSON
 }
 ###
 # 상품 전체 조회
-GET http://localhost:5608/products?category=p_created_at&order=desc
+GET http://localhost:5608/products?category=p_num&order=desc
 
 ###
 # 상품 상세 조회

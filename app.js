@@ -1,7 +1,10 @@
 const express = require('express'); // express 라이브러리를 변수에 할당
 const app = express(); // express를 실행해서 app 객체 생성
 const port = 5608; // 서버 포트
+const cookieParser = require('cookie-parser');
+
 app.use(express.json());
+app.use(cookieParser());
 
 const routes = require('./routes');
 

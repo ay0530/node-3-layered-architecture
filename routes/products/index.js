@@ -1,6 +1,10 @@
 const express = require("express"); // express 받아오기
 const router = express.Router(); // router 받아오기
-const { Products } = require("../../models/index");
+const sequelize = require("sequelize");
+const { Products, Members } = require("../../models/index");
+
+Members.hasMany(Products, { as: 'p', foreignKey: 'm_num' });
+Products.belongsTo(Members, { as: 'm', foreignKey: 'm_num' });
 
 // // 1. 상품 작성 API (Create / POST)
 router.post("/", async (req, res) => {
@@ -25,14 +29,28 @@ router.post("/", async (req, res) => {
 
 // //  2. 상품 목록 조회 API (Read / GET)
 router.get("/", async (req, res) => {
-  console.log(req.query);
   const { category, order } = req.query;
 
-  // 모든 상품 조회
   const allProduct = await Products.findAll({
-    attributes: ['p_num', 'p_name', 'p_description', 'm_num', 'p_status', 'p_created_at'],
-    order: [[category, order]]
+    attributes: [
+      'p_num',
+      'p_name',
+      'p_description',
+      'p_status',
+      [sequelize.col('m.m_name'), 'm_name'],
+      'p_created_at',
+    ],
+    include: [
+      {
+        model: Members,
+        as: 'm',
+        attributes: []
+      }
+    ],
+    order: [[category, order]],
+    raw: true // 결과를 JSON 객체로 반환하려면 raw: true 옵션을 사용합니다.
   });
+
   // 조회 (READ)
   return res.status(200).json({ allProduct });
 });
@@ -42,7 +60,24 @@ router.get("/:p_num", async (req, res) => {
   try {
     const { p_num } = req.params; // params 값 조회
 
-    const product = await Products.findOne({ where: { p_num } });
+    const product = await Products.findOne({
+      attributes: [
+        'p_num',
+        'p_name',
+        'p_description',
+        'p_status',
+        [sequelize.col('m.m_name'), 'm_name'],
+        'p_created_at',
+      ],
+      include: [
+        {
+          model: Members,
+          as: 'm',
+          attributes: []
+        }
+      ],
+      where: { p_num }
+    });
 
     // ERR 404 : DB에 해당 상품의 Id 값이 존재하지 않은 경우
     if (!product) {
