@@ -6,8 +6,8 @@ Content-Type: application/JSON
 
 {
   "m_id": "test8", 
-  "m_password": "123456",
-  "confirm_password": "123456",
+  "m_password": "12345",
+  "confirm_password": "12345",
   "m_name": "test8", 
   "m_email": "test8naver.com"
 }
@@ -26,6 +26,14 @@ Content-Type: application/JSON
 # 마이 페이지
 GET http://localhost:5608/members/me
 
+####################
+# 상품 전체 조회
+GET http://localhost:5608/products?category=p_num&order=desc
+
+###
+# 상품 상세 조회
+GET http://localhost:5608/products/1
+
 ###
 # 상품 등록
 POST http://localhost:5608/products/
@@ -35,10 +43,24 @@ Content-Type: application/JSON
   "p_name": "sample4", 
   "p_description": "sample4"
 }
-###
-# 상품 전체 조회
-GET http://localhost:5608/products?category=p_num&order=desc
 
 ###
-# 상품 상세 조회
-GET http://localhost:5608/products/1
+# 상품 등록
+POST http://localhost:5608/products/
+Content-Type: application/JSON
+
+{
+  "p_name": "sample4", 
+  "p_description": "sample4"
+}
+
+###
+# 상품 수정
+PuT http://localhost:5608/products/1
+Content-Type: application/JSON
+
+{
+  "p_name": "test1", 
+  "p_description": "sample1",
+  "p_status": "FOR_SALE"
+}

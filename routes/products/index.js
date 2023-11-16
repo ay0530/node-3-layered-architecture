@@ -1,10 +1,13 @@
 const express = require("express"); // express 받아오기
 const router = express.Router(); // router 받아오기
+const moment = require('moment-timezone'); // 현재 시간 라이브러리
+
 const sequelize = require("sequelize");
 const { Products, Members } = require("../../models/index");
-
 Members.hasMany(Products, { as: 'p', foreignKey: 'm_num' });
 Products.belongsTo(Members, { as: 'm', foreignKey: 'm_num' });
+
+
 
 // // 1. 상품 작성 API (Create / POST)
 router.post("/", async (req, res) => {
@@ -27,7 +30,79 @@ router.post("/", async (req, res) => {
   }
 });
 
-// //  2. 상품 목록 조회 API (Read / GET)
+// //  상품 정보 수정 API (Update / PUT)
+router.put("/:p_num", async (req, res) => {
+  try {
+    const { p_num } = req.params; // params 값 조회
+    const { p_name, p_description, p_status } = req.body; // body 값 조회
+
+    // ERR 404 : DB에 해당 상품의 Id 값이 존재하지 않은 경우
+    const existsProduct = await Products.findOne({ where: { p_num: p_num } });
+    if (!existsProduct) {
+      throw new Error("404-상품미저장err");
+    }
+
+    // ERR 400 : 데이터가 하나라도 입력되지 않은 경우
+    if (!p_name || !p_description || !p_status) {
+      throw new Error("400-데이터입력err");
+    }
+
+    // ERR 400 : 상품 상태가 FOR_SALE, SOLD_OUT이 아닌 경우
+    if (p_status != "FOR_SALE" && p_status != "SOLD_OUT") {
+      throw new Error("400-상품상태err");
+    }
+
+    // 수정(UPDATE)
+    await Products.update(
+      {
+        p_name: p_name,
+        p_description: p_description,
+        p_status: p_status,
+        p_updated_at: Date.now()
+      }, {
+      where: {
+        p_num: p_num
+      }
+    }
+    );
+
+    res.status(200).json({ message: "상품 정보를 수정하였습니다." });
+  } catch (error) {
+    // 오류를 클라이언트에게 반환
+    if (error.message === "400-데이터입력err") {
+      res.status(400).json({ errorMessage: "데이터 형식이 올바르지 않습니다." });
+    } else if (error.message === "400-상품상태err") {
+      res.status(400).json({ errorMessage: "상품 상태가 올바르지 않습니다." });
+    } else if (error.message === "404-상품미저장err") {
+      res.status(404).json({ errorMessage: "상품 조회에 실패하였습니다." });
+    }
+  }
+});
+
+// //  5. 상품 삭제 API (Delete / DELETE)
+router.delete("/:p_id", async (req, res) => {
+  try {
+    const { p_id } = req.params; // params 값 조회
+
+    // ERR 404 : DB에 해당 상품의 Id 값이 존재하지 않은 경우
+    const existsProduct = await Products.findByPk({ p_id });
+    if (!existsProduct) {
+      throw new Error("404-상품미저장err");
+    }
+
+    // 삭제(DELETE)
+    await Products.deleteOne({ p_id });
+    res.status(200).json({ message: "상품을 삭제하였습니다." });
+  } catch (error) {
+    if (error.message === "400-데이터입력err") {
+      res.status(400).json({ errorMessage: "데이터 형식이 올바르지 않습니다." });
+    } else if (error.message === "404-상품미저장err") {
+      res.status(403).json({ errorMessage: "상품 조회에 실패하였습니다." });
+    }
+  }
+});
+
+// //  상품 목록 조회 API (Read / GET)
 router.get("/", async (req, res) => {
   const { category, order } = req.query;
 
@@ -55,7 +130,7 @@ router.get("/", async (req, res) => {
   return res.status(200).json({ allProduct });
 });
 
-// //  3. 상품 상세 조회 API (Read / GET)
+// //  상품 상세 조회 API (Read / GET)
 router.get("/:p_num", async (req, res) => {
   try {
     const { p_num } = req.params; // params 값 조회

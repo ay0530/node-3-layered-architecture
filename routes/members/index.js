@@ -10,41 +10,21 @@ const auth_middleware = require("../../middlewares/auth-middleware.js");
 // 회원 정보 저장(CREATE)
 router.post('/sign', async (req, res) => {
   const { m_id, m_password, confirm_password, m_name, m_email } = req.body;
-  // 아이디 검증
-  // const exist_m_id = await Members.findOne({
-  //   attributes: ["m_id"],
-  //   where: { m_id }
-  // });
+  try {
+    if (m_password !== confirm_password) {
+      return res.status(400).json({ errorMessage: "비밀번호와 비밀번호 확인에 입력한 값이 일치하지 않습니다.", });
+    }
 
-  // if (exist_m_id) {
-  //   res.status(400).json({ errorMessage: "ID가 이미 사용중입니다." });
-  //   return;
-  // }
+    const member = await Members.create({ m_id, m_password, m_name, m_email });
+    await member.save();
 
-  // 이메일 검증
-  // const exist_m_email = await Members.findOne({
-  //   attributes: ["m_email"],
-  //   where: { m_email }
-  // });
-
-  // if (exist_m_email) {
-  //   res.status(400).json({ errorMessage: "Email이 이미 사용중입니다." });
-  //   return;
-  // }
-
-  // 비밀번호 검증
-  // if (m_password.length < 6) {
-  //   return res.status(400).json({ errorMessage: "비밀번호를 6자 이상 입력해주세요.", });
-  // }
-
-  if (m_password !== confirm_password) {
-    return res.status(400).json({ errorMessage: "비밀번호와 비밀번호 확인에 입력한 값이 일치하지 않습니다.", });
+    res.status(201).json({ member_info: { m_id, m_name, m_email } });
+  } catch (error) {
+    if (error.name === 'SequelizeValidationError') {
+      const validationErrors = error.errors.map(err => err.message.replace('Validation error: ', ''));
+      return res.status(400).json({ errorMessage: validationErrors });
+    }
   }
-
-  const member = await Members.create({ m_id, m_password, m_name, m_email });
-  await member.save();
-
-  res.status(201).json({ member_info: { m_id, m_name, m_email } });
 });
 
 // 로그인 및 인증정보 생성CREATE)

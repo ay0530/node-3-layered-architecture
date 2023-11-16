@@ -19,8 +19,10 @@ module.exports = (sequelize, DataTypes) => {
     m_password: {
       type: DataTypes.STRING,
       validate: {
-        len: [6, 20],
-        msg: "비밀번호를 6자 이상 입력해주세요."
+        len: {
+          args: [6, 20],
+          msg: "비밀번호를 6자 이상 입력해주세요."
+        }
       }
     },
     m_name: DataTypes.STRING,
@@ -28,8 +30,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       unique: true,
       validate: {
-        isEmail: true,
-        msg: "이메일 형식을 제대로 입력해주세요."
+        isEmail: {
+          msg: "이메일 형식을 제대로 입력해주세요."
+        }
       }
     },
     m_created_at: DataTypes.DATE,
