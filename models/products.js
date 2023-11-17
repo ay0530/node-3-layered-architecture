@@ -20,9 +20,22 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
     },
     m_num: DataTypes.INTEGER,
-    p_name: DataTypes.STRING,
-    p_description: DataTypes.STRING,
-    p_status: DataTypes.STRING,
+    p_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    p_description: {
+      type: DataTypes.STRING,
+    },
+    p_status: {
+      type: DataTypes.STRING,
+      validate: {
+        isIn: {
+          args: [["FOR_SALE", "SOLD_OUT"]],
+          msg: "상품 상태를 제대로 입력해주세요."
+        },
+      }
+    },
     p_created_at: DataTypes.DATE,
     p_updated_at: DataTypes.DATE
   }, {

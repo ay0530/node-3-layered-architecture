@@ -14,7 +14,18 @@ router.post('/sign', async (req, res) => {
     if (m_password !== confirm_password) {
       return res.status(400).json({ errorMessage: "비밀번호와 비밀번호 확인에 입력한 값이 일치하지 않습니다.", });
     }
-
+    // 비밀번호 암호화
+    // const originPassword = m_password;
+    // const saltRounds = 10;
+    // const hashPassword = bcrypt.hash(originPassword, saltRounds, (err, hash) => {
+    //   console.log("hash");
+    //   if (err) {
+    //     // 에러 처리
+    //     console.error(err);
+    //     return;
+    //   }
+    //   return hash;
+    // });
     const member = await Members.create({ m_id, m_password, m_name, m_email });
     await member.save();
 
@@ -47,7 +58,7 @@ router.post("/login", async (req, res) => {
     return;
   }
 
-  const token = await jwt.sign({ m_id }, "lay-secret-key", { expiresIn: "12h" });
+  const token = await jwt.sign({ m_id }, "lay-secret-key", { expiresIn: "10m" });
   res.cookie("Authorization", `Bearer ${token}`);
   res.status(200).json({ token: token });
 });

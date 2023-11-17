@@ -1,7 +1,6 @@
 const express = require("express"); // express 받아오기
 const router = express.Router(); // router 받아오기
-const moment = require('moment-timezone'); // 현재 시간 라이브러리
-
+const jwt = require("jsonwebtoken");
 const sequelize = require("sequelize");
 const { Products, Members } = require("../../models/index");
 Members.hasMany(Products, { as: 'p', foreignKey: 'm_num' });
@@ -12,6 +11,18 @@ Products.belongsTo(Members, { as: 'm', foreignKey: 'm_num' });
 // // 1. 상품 작성 API (Create / POST)
 router.post("/", async (req, res) => {
   try {
+    console.log("test");
+
+    const { Authorization } = req.cookies;
+    const [authType, authToken] = (Authorization ?? "").split(" ");
+    const { m_id } = jwt.verify(authToken, "lay-secret-key");
+
+    const m_num = await Members.findOne({
+      attributes: ["m_num"],
+      where: { m_id: m_id }
+    });
+    const m_num_value = m_num.get("m_num");
+
     // body 값 조회
     const { p_name, p_description } = req.body;
 
@@ -21,11 +32,13 @@ router.post("/", async (req, res) => {
     }
 
     // 저장(CREATE)
-    await Products.create({ p_name, p_description });
+    await Products.create({ m_num_value, p_name, p_description });
     res.status(201).json({ message: "판매 상품을 등록하였습니다." });
   } catch (error) {
     if (error.message === "400-데이터입력err") {
       return res.status(400).json({ errorMessage: "데이터 형식이 올바르지 않습니다." });
+    } else {
+      console.log(error);
     }
   }
 });
@@ -42,14 +55,9 @@ router.put("/:p_num", async (req, res) => {
       throw new Error("404-상품미저장err");
     }
 
-    // ERR 400 : 데이터가 하나라도 입력되지 않은 경우
+    // ERR 400 : 데이터가 하나라도 입력되지 않은 경우;
     if (!p_name || !p_description || !p_status) {
       throw new Error("400-데이터입력err");
-    }
-
-    // ERR 400 : 상품 상태가 FOR_SALE, SOLD_OUT이 아닌 경우
-    if (p_status != "FOR_SALE" && p_status != "SOLD_OUT") {
-      throw new Error("400-상품상태err");
     }
 
     // 수정(UPDATE)
@@ -69,10 +77,12 @@ router.put("/:p_num", async (req, res) => {
     res.status(200).json({ message: "상품 정보를 수정하였습니다." });
   } catch (error) {
     // 오류를 클라이언트에게 반환
-    if (error.message === "400-데이터입력err") {
+    if (error.name === 'SequelizeValidationError') {
+      const validationErrors = error.errors.map(err => err.message.replace('Validation error: ', ''));
+      return res.status(400).json({ errorMessage: validationErrors });
+    }
+    else if (error.message === "400-데이터입력err") {
       res.status(400).json({ errorMessage: "데이터 형식이 올바르지 않습니다." });
-    } else if (error.message === "400-상품상태err") {
-      res.status(400).json({ errorMessage: "상품 상태가 올바르지 않습니다." });
     } else if (error.message === "404-상품미저장err") {
       res.status(404).json({ errorMessage: "상품 조회에 실패하였습니다." });
     }
