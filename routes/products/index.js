@@ -11,20 +11,17 @@ Products.belongsTo(Members, { as: 'm', foreignKey: 'm_num' });
 // // 1. 상품 작성 API (Create / POST)
 router.post("/", async (req, res) => {
   try {
-    console.log("test");
-
-    const { Authorization } = req.cookies;
+    const { p_name, p_description } = req.body;    // body 값 조회
+    const { Authorization } = req.cookies; // cookie 값 조회
     const [authType, authToken] = (Authorization ?? "").split(" ");
     const { m_id } = jwt.verify(authToken, "lay-secret-key");
 
+    // 회원 번호 조회
     const m_num = await Members.findOne({
       attributes: ["m_num"],
       where: { m_id: m_id }
     });
     const m_num_value = m_num.get("m_num");
-
-    // body 값 조회
-    const { p_name, p_description } = req.body;
 
     // ERR 400 : 데이터가 하나라도 입력되지 않은 경우
     if (!p_name || !p_description) {
@@ -32,7 +29,7 @@ router.post("/", async (req, res) => {
     }
 
     // 저장(CREATE)
-    await Products.create({ m_num_value, p_name, p_description });
+    await Products.create({ m_num: m_num_value, p_name, p_description });
     res.status(201).json({ message: "판매 상품을 등록하였습니다." });
   } catch (error) {
     if (error.message === "400-데이터입력err") {
@@ -49,6 +46,17 @@ router.put("/:p_num", async (req, res) => {
     const { p_num } = req.params; // params 값 조회
     const { p_name, p_description, p_status } = req.body; // body 값 조회
 
+    const { Authorization } = req.cookies; // cookie 값 조회
+    const [authType, authToken] = (Authorization ?? "").split(" ");
+    const { m_id } = jwt.verify(authToken, "lay-secret-key");
+
+    // 회원 번호 조회
+    const m_num = await Members.findOne({
+      attributes: ["m_num"],
+      where: { m_id: m_id }
+    });
+    const m_num_value = m_num.get("m_num");
+
     // ERR 404 : DB에 해당 상품의 Id 값이 존재하지 않은 경우
     const existsProduct = await Products.findOne({ where: { p_num: p_num } });
     if (!existsProduct) {
@@ -58,6 +66,10 @@ router.put("/:p_num", async (req, res) => {
     // ERR 400 : 데이터가 하나라도 입력되지 않은 경우;
     if (!p_name || !p_description || !p_status) {
       throw new Error("400-데이터입력err");
+    }
+
+    if (m_num_value !== existsProduct.get("m_num")) {
+      res.status(400).json({ errorMessage: "권한이 없습니다." });
     }
 
     // 수정(UPDATE)
@@ -90,18 +102,38 @@ router.put("/:p_num", async (req, res) => {
 });
 
 // //  5. 상품 삭제 API (Delete / DELETE)
-router.delete("/:p_id", async (req, res) => {
+router.delete("/:p_num", async (req, res) => {
   try {
-    const { p_id } = req.params; // params 값 조회
+    const { p_num } = req.params; // params 값 조회
+    console.log("🚀 ~ file: index.js:108 ~ router.delete ~ p_num:", p_num);
+    const { Authorization } = req.cookies; // cookie 값 조회
+    const [authType, authToken] = (Authorization ?? "").split(" ");
+    const { m_id } = jwt.verify(authToken, "lay-secret-key");
+
+    // 회원 번호 조회
+    const m_num = await Members.findOne({
+      attributes: ["m_num"],
+      where: { m_id: m_id }
+    });
+    const m_num_value = m_num.get("m_num");
 
     // ERR 404 : DB에 해당 상품의 Id 값이 존재하지 않은 경우
-    const existsProduct = await Products.findByPk({ p_id });
+    const existsProduct = await Products.findOne({ where: { p_num: p_num } });
     if (!existsProduct) {
       throw new Error("404-상품미저장err");
     }
 
+    if (m_num_value !== existsProduct.get("m_num")) {
+      return res.status(400).json({ errorMessage: "권한이 없습니다." });
+    }
+
     // 삭제(DELETE)
-    await Products.deleteOne({ p_id });
+    await Products.destroy({
+      where: {
+        p_num: p_num
+      }
+    });
+
     res.status(200).json({ message: "상품을 삭제하였습니다." });
   } catch (error) {
     if (error.message === "400-데이터입력err") {

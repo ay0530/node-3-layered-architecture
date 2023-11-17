@@ -1,66 +1,61 @@
-@my_domain="http://localhost:5608/members"
+@domain = http://localhost:5608
 ### 
 # 회원 정보 저장
-POST http://localhost:5608/members/sign
+POST {{domain}}/members/sign
 Content-Type: application/JSON
 
 {
-  "m_id": "test12", 
+  "m_id": "test5",  
   "m_password": "123456",
   "confirm_password": "123456",
-  "m_name": "test12", 
-  "m_email": "test12naver.com"
+  "m_name": "test5", 
+  "m_email": "test5@naver.com"
 }
 
 ###
 # 로그인
-POST http://localhost:5608/members/login
+POST {{domain}}/members/login
 Content-Type: application/JSON
 
 {
-  "m_id": "너는 바보야!", 
+  "m_id": "test1", 
   "m_password": "123456"
 }
 
 ###
 # 마이 페이지
-GET http://localhost:5608/members/me
+GET {{domain}}/members/me
 
 ####################
 # 상품 전체 조회
-GET http://localhost:5608/products?category=p_num&order=desc
+GET {{domain}}/products?category=p_num&order=desc
 
 ###
 # 상품 상세 조회
-GET http://localhost:5608/products/1
+GET {{domain}}/products/1
 
 ###
 # 상품 등록
-POST http://localhost:5608/products/
+POST {{domain}}/products/
 Content-Type: application/JSON
 
 {
-  "p_name": "sample14", 
-  "p_description": "sample14"
-}
-
-###
-# 상품 등록
-POST http://localhost:5608/products/
-Content-Type: application/JSON
-
-{
-  "p_name": "sample4", 
-  "p_description": "sample4"
+  "p_name": "sample19",
+  "p_description": "sample19"
 }
 
 ###
 # 상품 수정
-PuT http://localhost:5608/products/1
+PUT {{domain}}/products/3
 Content-Type: application/JSON
 
 {
-  "p_name": "test1", 
+  "p_name": "sample1", 
   "p_description": "sample1",
   "p_status": "FOR_SALE"
 }
+
+###
+
+# 상품 삭제 
+DELETE {{domain}}/products/6
