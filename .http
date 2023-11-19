@@ -1,15 +1,15 @@
 @domain = http://localhost:5608
 ### 
 # 회원 정보 저장
-POST {{domain}}/members/sign
+POST {{domain}}/members/signup
 Content-Type: application/JSON
 
 {
-  "m_id": "test5",  
+  "m_id": "test6",  
   "m_password": "123456",
   "confirm_password": "123456",
-  "m_name": "test5", 
-  "m_email": "test5@naver.com"
+  "m_name": "test6", 
+  "m_email": "test6@naver.com"
 }
 
 ###
@@ -27,26 +27,26 @@ Content-Type: application/JSON
 GET {{domain}}/members/me
 
 ####################
-# 상품 전체 조회
-GET {{domain}}/products?category=p_num&order=desc
+# 상품 정보 전체 조회
+GET {{domain}}/products?category=p_num&order=asc
 
 ###
-# 상품 상세 조회
-GET {{domain}}/products/1
+# 상품 정보 개별 조회
+GET {{domain}}/products/2
 
 ###
-# 상품 등록
+# 상품 정보 저장
 POST {{domain}}/products/
 Content-Type: application/JSON
 
 {
-  "p_name": "sample19",
-  "p_description": "sample19"
+  "p_name": "sample22",
+  "p_description": "sample22"
 }
 
 ###
-# 상품 수정
-PUT {{domain}}/products/3
+# 상품 정보 수정
+PUT {{domain}}/products/10
 Content-Type: application/JSON
 
 {

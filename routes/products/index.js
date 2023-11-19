@@ -1,22 +1,23 @@
 const express = require("express"); // express 받아오기
 const router = express.Router(); // router 받아오기
 const jwt = require("jsonwebtoken");
+
+// DB 설정
 const sequelize = require("sequelize");
 const { Products, Members } = require("../../models/index");
 Members.hasMany(Products, { as: 'p', foreignKey: 'm_num' });
 Products.belongsTo(Members, { as: 'm', foreignKey: 'm_num' });
 
-
-
-// // 1. 상품 작성 API (Create / POST)
+// // 상품 정보 저장
 router.post("/", async (req, res) => {
   try {
     const { p_name, p_description } = req.body;    // body 값 조회
     const { Authorization } = req.cookies; // cookie 값 조회
+    // 조회 : 쿠키에 저장된 토큰 , payload
     const [authType, authToken] = (Authorization ?? "").split(" ");
     const { m_id } = jwt.verify(authToken, "lay-secret-key");
 
-    // 회원 번호 조회
+    // 조회 : 회원 번호
     const m_num = await Members.findOne({
       attributes: ["m_num"],
       where: { m_id: m_id }
@@ -24,33 +25,29 @@ router.post("/", async (req, res) => {
     const m_num_value = m_num.get("m_num");
 
     // ERR 400 : 데이터가 하나라도 입력되지 않은 경우
-    if (!p_name || !p_description) {
-      throw new Error("400-데이터입력err");
-    }
+    if (!p_name || !p_description) { throw new Error("400-데이터입력err"); }
 
-    // 저장(CREATE)
+    // 저장 : 상품정보
     await Products.create({ m_num: m_num_value, p_name, p_description });
     res.status(201).json({ message: "판매 상품을 등록하였습니다." });
   } catch (error) {
     if (error.message === "400-데이터입력err") {
       return res.status(400).json({ errorMessage: "데이터 형식이 올바르지 않습니다." });
-    } else {
-      console.log(error);
     }
   }
 });
 
-// //  상품 정보 수정 API (Update / PUT)
+// //  상품 정보 수정
 router.put("/:p_num", async (req, res) => {
   try {
     const { p_num } = req.params; // params 값 조회
     const { p_name, p_description, p_status } = req.body; // body 값 조회
-
+    // 조회 : 쿠키에 저장된 토큰 , payload
     const { Authorization } = req.cookies; // cookie 값 조회
     const [authType, authToken] = (Authorization ?? "").split(" ");
     const { m_id } = jwt.verify(authToken, "lay-secret-key");
 
-    // 회원 번호 조회
+    // 조회 : 회원 번호 
     const m_num = await Members.findOne({
       attributes: ["m_num"],
       where: { m_id: m_id }
@@ -58,21 +55,18 @@ router.put("/:p_num", async (req, res) => {
     const m_num_value = m_num.get("m_num");
 
     // ERR 404 : DB에 해당 상품의 Id 값이 존재하지 않은 경우
-    const existsProduct = await Products.findOne({ where: { p_num: p_num } });
-    if (!existsProduct) {
-      throw new Error("404-상품미저장err");
-    }
+    const existsProduct = await Products.findOne({
+      where: { p_num: p_num }
+    });
+    if (!existsProduct) { throw new Error("404-상품미저장err"); }
 
-    // ERR 400 : 데이터가 하나라도 입력되지 않은 경우;
-    if (!p_name || !p_description || !p_status) {
-      throw new Error("400-데이터입력err");
-    }
+    // ERR 400 : 데이터가 하나라도 입력되지 않은 경우
+    if (!p_name || !p_description || !p_status) { throw new Error("400-데이터입력err"); }
 
-    if (m_num_value !== existsProduct.get("m_num")) {
-      res.status(400).json({ errorMessage: "권한이 없습니다." });
-    }
+    // ERR 400 : 상품을 등록한 계정이 아닌 경우
+    if (m_num_value !== existsProduct.get("m_num")) { throw new Error("400-권한미존재"); }
 
-    // 수정(UPDATE)
+    // 수정 : 상품 정보
     await Products.update(
       {
         p_name: p_name,
@@ -85,10 +79,9 @@ router.put("/:p_num", async (req, res) => {
       }
     }
     );
-
     res.status(200).json({ message: "상품 정보를 수정하였습니다." });
   } catch (error) {
-    // 오류를 클라이언트에게 반환
+    // SequelizeValidationError : Models의 유효성 검사 에러
     if (error.name === 'SequelizeValidationError') {
       const validationErrors = error.errors.map(err => err.message.replace('Validation error: ', ''));
       return res.status(400).json({ errorMessage: validationErrors });
@@ -97,20 +90,23 @@ router.put("/:p_num", async (req, res) => {
       res.status(400).json({ errorMessage: "데이터 형식이 올바르지 않습니다." });
     } else if (error.message === "404-상품미저장err") {
       res.status(404).json({ errorMessage: "상품 조회에 실패하였습니다." });
+    } else if (error.message === "400-권한미존재") {
+      res.status(404).json({ errorMessage: "수정 권한이 없습니다." });
     }
   }
 });
 
-// //  5. 상품 삭제 API (Delete / DELETE)
+// //  상품 정보 삭제
 router.delete("/:p_num", async (req, res) => {
   try {
     const { p_num } = req.params; // params 값 조회
-    console.log("🚀 ~ file: index.js:108 ~ router.delete ~ p_num:", p_num);
+
+    // 조회 : 쿠키에 저장된 토큰 , payload
     const { Authorization } = req.cookies; // cookie 값 조회
     const [authType, authToken] = (Authorization ?? "").split(" ");
     const { m_id } = jwt.verify(authToken, "lay-secret-key");
 
-    // 회원 번호 조회
+    // 조회 : 회원 번호
     const m_num = await Members.findOne({
       attributes: ["m_num"],
       where: { m_id: m_id }
@@ -119,15 +115,12 @@ router.delete("/:p_num", async (req, res) => {
 
     // ERR 404 : DB에 해당 상품의 Id 값이 존재하지 않은 경우
     const existsProduct = await Products.findOne({ where: { p_num: p_num } });
-    if (!existsProduct) {
-      throw new Error("404-상품미저장err");
-    }
+    if (!existsProduct) { throw new Error("404-상품미저장err"); }
 
-    if (m_num_value !== existsProduct.get("m_num")) {
-      return res.status(400).json({ errorMessage: "권한이 없습니다." });
-    }
+    // ERR 404 : 상품을 등록한 계정이 아닌 경우
+    if (m_num_value !== existsProduct.get("m_num")) { throw new Error("400-권한미존재"); }
 
-    // 삭제(DELETE)
+    // 삭제 : 상품 정보
     await Products.destroy({
       where: {
         p_num: p_num
@@ -136,18 +129,19 @@ router.delete("/:p_num", async (req, res) => {
 
     res.status(200).json({ message: "상품을 삭제하였습니다." });
   } catch (error) {
-    if (error.message === "400-데이터입력err") {
-      res.status(400).json({ errorMessage: "데이터 형식이 올바르지 않습니다." });
-    } else if (error.message === "404-상품미저장err") {
+    if (error.message === "404-상품미저장err") {
       res.status(403).json({ errorMessage: "상품 조회에 실패하였습니다." });
+    } else if (error.message === "404-권한미존재") {
+      res.status(403).json({ errorMessage: "권한이 없습니다." });
     }
   }
 });
 
-// //  상품 목록 조회 API (Read / GET)
+// //  상품 정보 전체 조회
 router.get("/", async (req, res) => {
-  const { category, order } = req.query;
+  const { category, order } = req.query; // req 조회
 
+  // 조회 : 상품 전체
   const allProduct = await Products.findAll({
     attributes: [
       'p_num',
@@ -165,18 +159,17 @@ router.get("/", async (req, res) => {
       }
     ],
     order: [[category, order]],
-    raw: true // 결과를 JSON 객체로 반환하려면 raw: true 옵션을 사용합니다.
+    raw: true
   });
-
-  // 조회 (READ)
   return res.status(200).json({ allProduct });
 });
 
-// //  상품 상세 조회 API (Read / GET)
+// //  상품 상세 조회
 router.get("/:p_num", async (req, res) => {
   try {
     const { p_num } = req.params; // params 값 조회
 
+    // 조회 : 상품 상세
     const product = await Products.findOne({
       attributes: [
         'p_num',
@@ -201,7 +194,7 @@ router.get("/:p_num", async (req, res) => {
       throw new Error("404-상품미저장err");
     }
 
-    res.status(200).json({ detail: product });
+    res.status(200).json({ product: product });
   } catch (error) {
     if (error.message === "404-상품미저장err") {
       return res.status(404).json({ message: "상품 조회에 실패하였습니다." });
