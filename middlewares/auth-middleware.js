@@ -16,6 +16,15 @@ module.exports = async (req, res, next) => {
     // ERR 401 : 로그인 전
     if (!authToken || authType !== "Bearer") { throw new Error("401-로그인전"); }
 
+    // ERR 401 : 토큰 유효기간 만료
+    jwt.verify(token, env.PRIVATE_KEY, (err, decoded) => {
+      if (err) {
+        if (err.name === 'TokenExpiredError') {
+          throw new Error("401-토큰유효기간만료");
+        }
+      }
+    });
+
     // 조회 : 회원 정보
     const member = await Members.findOne({
       where: {
@@ -29,8 +38,14 @@ module.exports = async (req, res, next) => {
     res.locals.member = member;    // localStorage에 member 값 저장
     next();
   } catch (err) {
+    console.log(err);
     if (err.code === "401-로그인전") {
       res.status(401).send({ errorMessage: "로그인 후 이용 가능한 기능입니다." });
+    } else if (err.messae = "401-토큰유효기간만료") {
+      return res.status(401).json({ message: '토큰이 만료되었습니다.' });
+    } else {
+      console.log(err);
+      res.status(404).send({ errorMessage: "예상치 못한 에러가 발생하였습니다. 관리자에게 문의 바랍니다." });
     }
   }
 };
