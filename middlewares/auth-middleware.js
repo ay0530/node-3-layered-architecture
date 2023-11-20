@@ -36,7 +36,7 @@ module.exports = async (req, res, next) => {
     next();
   } catch (err) {
     console.log(err);
-    if (err.code === "401-로그인전") {
+    if (err.message === "401-로그인전") {
       res.status(401).send({ errorMessage: "로그인 후 이용 가능한 기능입니다." });
     } else if (err.message = "401-토큰유효기간만료") {
       return res.status(401).json({ message: '토큰이 만료되었습니다.' });
