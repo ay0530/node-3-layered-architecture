@@ -9,7 +9,7 @@ Members.hasMany(Products, { as: 'p', foreignKey: 'm_num' });
 Products.belongsTo(Members, { as: 'm', foreignKey: 'm_num' });
 
 // // 상품 정보 저장
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
   try {
     const { p_name, p_description } = req.body;    // body 값 조회
     const { Authorization } = req.cookies; // cookie 값 조회
@@ -38,7 +38,7 @@ router.post("/", async (req, res) => {
 });
 
 // //  상품 정보 수정
-router.put("/:p_num", async (req, res) => {
+router.put("/:p_num", authMiddleware, async (req, res) => {
   try {
     const { p_num } = req.params; // params 값 조회
     const { p_name, p_description, p_status } = req.body; // body 값 조회
@@ -97,7 +97,7 @@ router.put("/:p_num", async (req, res) => {
 });
 
 // //  상품 정보 삭제
-router.delete("/:p_num", async (req, res) => {
+router.delete("/:p_num", authMiddleware, async (req, res) => {
   try {
     const { p_num } = req.params; // params 값 조회
 

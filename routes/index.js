@@ -16,7 +16,7 @@ sequelize
 const membersRouter = require('./members');
 const productsRouter = require('./products');
 
-router.use("/products", authMiddleware);
+// router.use("/products", authMiddleware);
 router.use("/members", membersRouter);
 
 router.use("/products", productsRouter);

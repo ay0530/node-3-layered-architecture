@@ -1,15 +1,17 @@
-@domain = http://localhost:5608
+@domain = http://3.36.72.57:5608
+#http://localhost:5608
+
 ### 
 # 회원 정보 저장
 POST {{domain}}/members/signup
 Content-Type: application/JSON
 
 {
-  "m_id": "test7",  
+  "m_id": "test8",  
   "m_password": "123456",
   "confirm_password": "123456",
-  "m_name": "test7", 
-  "m_email": "test7@naver.com"
+  "m_name": "test8", 
+  "m_email": "test8@naver.com"
 }
 
 ###
@@ -18,7 +20,7 @@ POST {{domain}}/members/login
 Content-Type: application/JSON
 
 {
-  "m_id": "test5", 
+  "m_id": "test8", 
   "m_password": "123456"
 }
 
