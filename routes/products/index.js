@@ -1,7 +1,7 @@
 const express = require("express"); // express 받아오기
 const router = express.Router(); // router 받아오기
 const jwt = require("jsonwebtoken");
-const authMiddleware = require('../middlewares/auth-middleware');
+const authMiddleware = require('../../middlewares/auth-middleware');
 
 // DB 설정
 const sequelize = require("sequelize");
