@@ -19,8 +19,8 @@ module.exports = async (req, res, next) => {
     const { m_id } = jwt.verify(authToken, env.PRIVATE_KEY, (err, decoded) => {
       if (err) {
         console.log(err + "!");
-        // ERR 401 : 토큰 유효기간 만료
-        if (err.name === 'TokenExpiredError') { throw new Error("401-토큰유효기간만료"); }
+        // ERR 403 : 토큰 유효기간 만료
+        if (err.name === 'TokenExpiredError') { throw new Error("403-토큰유효기간만료"); }
       }
     });
     const member = await Members.findOne({
@@ -38,8 +38,8 @@ module.exports = async (req, res, next) => {
     console.log(err);
     if (err.message === "401-로그인전") {
       res.status(401).send({ errorMessage: "로그인 후 이용 가능한 기능입니다." });
-    } else if (err.message = "401-토큰유효기간만료") {
-      return res.status(401).json({ message: '토큰이 만료되었습니다.' });
+    } else if (err.message = "403-토큰유효기간만료") {
+      return res.status(403).json({ message: '토큰이 만료되었습니다.' });
     } else {
       console.log(err);
       res.status(404).send({ errorMessage: "예상치 못한 에러가 발생하였습니다. 관리자에게 문의 바랍니다." });

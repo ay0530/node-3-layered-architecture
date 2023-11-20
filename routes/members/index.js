@@ -89,7 +89,7 @@ router.post("/login", async (req, res) => {
 
     // 로그인 성공 시 토큰 생성
     // jwt.sign({payload},"암호키",{expiresIn: 유효 시간}) : 토큰 생성
-    const token = await jwt.sign({ m_id }, env.PRIVATE_KEY, { expiresIn: "10m" });
+    const token = await jwt.sign({ m_id }, env.PRIVATE_KEY, { expiresIn: "12h" });
     res.cookie("Authorization", `Bearer ${token}`); // res.cookie("Authorization", `Bearer ${token}`) : 쿠키에 토큰 저장
     res.status(200).json({ token: token });
   } catch (error) {

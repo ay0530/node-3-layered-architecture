@@ -64,8 +64,8 @@ router.put("/:p_num", authMiddleware, async (req, res) => {
     // ERR 400 : 데이터가 하나라도 입력되지 않은 경우
     if (!p_name || !p_description || !p_status) { throw new Error("400-데이터입력err"); }
 
-    // ERR 400 : 상품을 등록한 계정이 아닌 경우
-    if (m_num_value !== existsProduct.get("m_num")) { throw new Error("400-권한미존재"); }
+    // ERR 403 : 상품을 등록한 계정이 아닌 경우
+    if (m_num_value !== existsProduct.get("m_num")) { throw new Error("403-권한미존재"); }
 
     // 수정 : 상품 정보
     await Products.update(
@@ -89,10 +89,10 @@ router.put("/:p_num", authMiddleware, async (req, res) => {
     }
     else if (error.message === "400-데이터입력err") {
       res.status(400).json({ errorMessage: "데이터 형식이 올바르지 않습니다." });
+    } else if (error.message === "403-권한미존재") {
+      res.status(403).json({ errorMessage: "수정 권한이 없습니다." });
     } else if (error.message === "404-상품미저장err") {
       res.status(404).json({ errorMessage: "상품 조회에 실패하였습니다." });
-    } else if (error.message === "400-권한미존재") {
-      res.status(404).json({ errorMessage: "수정 권한이 없습니다." });
     }
   }
 });
@@ -118,8 +118,8 @@ router.delete("/:p_num", authMiddleware, async (req, res) => {
     const existsProduct = await Products.findOne({ where: { p_num: p_num } });
     if (!existsProduct) { throw new Error("404-상품미저장err"); }
 
-    // ERR 404 : 상품을 등록한 계정이 아닌 경우
-    if (m_num_value !== existsProduct.get("m_num")) { throw new Error("400-권한미존재"); }
+    // ERR 403 : 상품을 등록한 계정이 아닌 경우
+    if (m_num_value !== existsProduct.get("m_num")) { throw new Error("403-권한미존재"); }
 
     // 삭제 : 상품 정보
     await Products.destroy({
@@ -130,10 +130,10 @@ router.delete("/:p_num", authMiddleware, async (req, res) => {
 
     res.status(200).json({ message: "상품을 삭제하였습니다." });
   } catch (error) {
-    if (error.message === "404-상품미저장err") {
-      res.status(403).json({ errorMessage: "상품 조회에 실패하였습니다." });
-    } else if (error.message === "404-권한미존재") {
+    if (error.message === "403-권한미존재") {
       res.status(403).json({ errorMessage: "권한이 없습니다." });
+    } else if (error.message === "404-상품미저장err") {
+      res.status(404).json({ errorMessage: "상품 조회에 실패하였습니다." });
     }
   }
 });
