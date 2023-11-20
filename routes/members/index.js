@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 const { Members } = require("../../models/index");
-const auth_middleware = require("../../middlewares/auth-middleware.js");
+const authMiddleware = require('../../middlewares/auth-middleware');
 
 require('dotenv').config();
 const env = process.env;
@@ -103,7 +103,7 @@ router.post("/login", async (req, res) => {
 });
 
 // 내 정보 조회
-router.get("/me", auth_middleware, async (req, res) => {
+router.get("/me", authMiddleware, async (req, res) => {
   // res.locals.@@ : localstorage에 저장된 정보 조회
   const { m_id, m_email, m_name } = res.locals.member;
   res.status(200).json({ my_info: { m_id, m_name, m_email } });
