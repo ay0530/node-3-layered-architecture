@@ -19,7 +19,7 @@ module.exports = async (req, res, next) => {
     // ERR 401 : 토큰 유효기간 만료
     jwt.verify(token, env.PRIVATE_KEY, (err, decoded) => {
       if (err) {
-        console.log(err);
+        console.log(err + "!");
         if (err.name === 'TokenExpiredError') { throw new Error("401-토큰유효기간만료"); }
       }
     });
