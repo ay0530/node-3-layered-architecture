@@ -2,13 +2,16 @@ const jwt = require("jsonwebtoken");
 const { Op } = require('sequelize');
 const { Members } = require("../models/index");
 
+require('dotenv').config();
+const env = process.env;
+
 // 사용자 인증 미들웨어
 module.exports = async (req, res, next) => {
   try {
     // 토큰 정보 조회
     const { Authorization } = req.cookies;
     const [authType, authToken] = (Authorization ?? "").split(" ");
-    const { m_id } = jwt.verify(authToken, "lay-secret-key");
+    const { m_id } = jwt.verify(authToken, env.PRIVATE_KEY);
 
     // ERR 401 : 로그인 전
     if (!authToken || authType !== "Bearer") { throw new Error("401-로그인전"); }

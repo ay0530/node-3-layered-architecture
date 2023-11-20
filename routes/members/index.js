@@ -6,6 +6,9 @@ const { Op } = require('sequelize');
 const { Members } = require("../../models/index");
 const auth_middleware = require("../../middlewares/auth-middleware.js");
 
+require('dotenv').config();
+const env = process.env;
+
 // 회원 정보 저장(CREATE)
 router.post('/signup', async (req, res) => {
   const { m_id, m_password, confirm_password, m_name, m_email } = req.body;
@@ -86,7 +89,7 @@ router.post("/login", async (req, res) => {
 
     // 로그인 성공 시 토큰 생성
     // jwt.sign({payload},"암호키",{expiresIn: 유효 시간}) : 토큰 생성
-    const token = await jwt.sign({ m_id }, "lay-secret-key", { expiresIn: "10m" });
+    const token = await jwt.sign({ m_id }, env.PRIVATE_KEY, { expiresIn: "10m" });
     res.cookie("Authorization", `Bearer ${token}`); // res.cookie("Authorization", `Bearer ${token}`) : 쿠키에 토큰 저장
     res.status(200).json({ token: token });
   } catch (error) {

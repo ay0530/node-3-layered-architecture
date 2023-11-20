@@ -5,11 +5,11 @@ POST {{domain}}/members/signup
 Content-Type: application/JSON
 
 {
-  "m_id": "test6",  
+  "m_id": "test7",  
   "m_password": "123456",
   "confirm_password": "123456",
-  "m_name": "test6", 
-  "m_email": "test6@naver.com"
+  "m_name": "test7", 
+  "m_email": "test7@naver.com"
 }
 
 ###
@@ -18,7 +18,7 @@ POST {{domain}}/members/login
 Content-Type: application/JSON
 
 {
-  "m_id": "test1", 
+  "m_id": "test5", 
   "m_password": "123456"
 }
 

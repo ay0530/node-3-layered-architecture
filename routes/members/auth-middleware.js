@@ -2,6 +2,9 @@ const jwt = require("jsonwebtoken");
 const { Op } = require('sequelize');
 const { Members } = require("../../models/index");
 
+require('dotenv').config();
+const env = process.env;
+
 // 사용자 인증 미들웨어
 module.exports = async (req, res, next) => {
   const { Authorization } = req.cookies;
@@ -16,7 +19,7 @@ module.exports = async (req, res, next) => {
   }
 
   try {
-    const { m_id } = jwt.verify(authToken, "lay-secret-key");
+    const { m_id } = jwt.verify(authToken, env.PRIVATE_KEY);
     const member = await Members.findOne({
       where: {
         [Op.or]: [
