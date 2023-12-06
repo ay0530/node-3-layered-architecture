@@ -1,35 +1,31 @@
 const express = require("express"); // express 받아오기
-const router = express.Router(); // router 받아오기
-const jwt = require("jsonwebtoken");
-const authMiddleware = require('../../middlewares/auth-middleware');
-
-// DB 설정
-const sequelize = require("sequelize");
-const { Products, Members } = require("../../models/index");
-Members.hasMany(Products, { as: 'p', foreignKey: 'm_num' });
-Products.belongsTo(Members, { as: 'm', foreignKey: 'm_num' });
+const router = express.Router();
+const jwt = require('jsonwebtoken'); // jwt 패키지 - 인증
+const authMiddleware = require('../../middlewares/auth-middleware.js'); // auth-middleware.js 조회
+const { PrismaClient } = require('@prisma/client'); // prisma 패키지
+const prisma = new PrismaClient();
 
 // // 상품 정보 저장
 router.post("/", authMiddleware, async (req, res) => {
   try {
-    const { p_name, p_description } = req.body;    // body 값 조회
+    const { name, description } = req.body;    // body 값 조회
     const { Authorization } = req.cookies; // cookie 값 조회
     // 조회 : 쿠키에 저장된 토큰 , payload
     const [authType, authToken] = (Authorization ?? "").split(" ");
-    const { m_id } = jwt.verify(authToken, "lay-secret-key");
+    const { login_id } = jwt.verify(authToken, "lay-secret-key");
 
     // 조회 : 회원 번호
-    const m_num = await Members.findOne({
-      attributes: ["m_num"],
-      where: { m_id: m_id }
+    const user_id = await USER.findOne({
+      attributes: ["user_id"],
+      where: { login_id: login_id }
     });
-    const m_num_value = m_num.get("m_num");
+    const userIdValue = user_id.get("user_id");
 
     // ERR 400 : 데이터가 하나라도 입력되지 않은 경우
-    if (!p_name || !p_description) { throw new Error("400-데이터입력err"); }
+    if (!name || !description) { throw new Error("400-데이터입력err"); }
 
     // 저장 : 상품정보
-    await Products.create({ m_num: m_num_value, p_name, p_description });
+    await Products.create({ user_id: userIdValue, name, description });
     res.status(201).json({ message: "판매 상품을 등록하였습니다." });
   } catch (error) {
     if (error.message === "400-데이터입력err") {
@@ -42,18 +38,18 @@ router.post("/", authMiddleware, async (req, res) => {
 router.put("/:p_num", authMiddleware, async (req, res) => {
   try {
     const { p_num } = req.params; // params 값 조회
-    const { p_name, p_description, p_status } = req.body; // body 값 조회
+    const { name, description, p_status } = req.body; // body 값 조회
     // 조회 : 쿠키에 저장된 토큰 , payload
     const { Authorization } = req.cookies; // cookie 값 조회
     const [authType, authToken] = (Authorization ?? "").split(" ");
-    const { m_id } = jwt.verify(authToken, "lay-secret-key");
+    const { login_id } = jwt.verify(authToken, "lay-secret-key");
 
     // 조회 : 회원 번호 
-    const m_num = await Members.findOne({
-      attributes: ["m_num"],
-      where: { m_id: m_id }
+    const userId = await USER.findOne({
+      attributes: ["user_id"],
+      where: { login_id }
     });
-    const m_num_value = m_num.get("m_num");
+    const userIdValue = userId.get("user_id");
 
     // ERR 404 : DB에 해당 상품의 Id 값이 존재하지 않은 경우
     const existsProduct = await Products.findOne({
@@ -62,16 +58,16 @@ router.put("/:p_num", authMiddleware, async (req, res) => {
     if (!existsProduct) { throw new Error("404-상품미저장err"); }
 
     // ERR 400 : 데이터가 하나라도 입력되지 않은 경우
-    if (!p_name || !p_description || !p_status) { throw new Error("400-데이터입력err"); }
+    if (!name || !description || !p_status) { throw new Error("400-데이터입력err"); }
 
     // ERR 403 : 상품을 등록한 계정이 아닌 경우
-    if (m_num_value !== existsProduct.get("m_num")) { throw new Error("403-권한미존재"); }
+    if (userIdValue !== existsProduct.get("user_id")) { throw new Error("403-권한미존재"); }
 
     // 수정 : 상품 정보
     await Products.update(
       {
-        p_name: p_name,
-        p_description: p_description,
+        name: name,
+        description: description,
         p_status: p_status,
         p_updated_at: Date.now()
       }, {
@@ -105,21 +101,21 @@ router.delete("/:p_num", authMiddleware, async (req, res) => {
     // 조회 : 쿠키에 저장된 토큰 , payload
     const { Authorization } = req.cookies; // cookie 값 조회
     const [authType, authToken] = (Authorization ?? "").split(" ");
-    const { m_id } = jwt.verify(authToken, "lay-secret-key");
+    const { login_id } = jwt.verify(authToken, "lay-secret-key");
 
     // 조회 : 회원 번호
-    const m_num = await Members.findOne({
-      attributes: ["m_num"],
-      where: { m_id: m_id }
+    const user_id = await USER.findOne({
+      attributes: ["user_id"],
+      where: { login_id: login_id }
     });
-    const m_num_value = m_num.get("m_num");
+    const userIdValue = user_id.get("user_id");
 
     // ERR 404 : DB에 해당 상품의 Id 값이 존재하지 않은 경우
     const existsProduct = await Products.findOne({ where: { p_num: p_num } });
     if (!existsProduct) { throw new Error("404-상품미저장err"); }
 
     // ERR 403 : 상품을 등록한 계정이 아닌 경우
-    if (m_num_value !== existsProduct.get("m_num")) { throw new Error("403-권한미존재"); }
+    if (userIdValue !== existsProduct.get("user_id")) { throw new Error("403-권한미존재"); }
 
     // 삭제 : 상품 정보
     await Products.destroy({
@@ -146,15 +142,15 @@ router.get("/", async (req, res) => {
   const allProduct = await Products.findAll({
     attributes: [
       'p_num',
-      'p_name',
-      'p_description',
+      'name',
+      'description',
       'p_status',
       [sequelize.col('m.m_name'), 'm_name'],
       'p_created_at',
     ],
     include: [
       {
-        model: Members,
+        model: USER,
         as: 'm',
         attributes: []
       }
@@ -174,15 +170,15 @@ router.get("/:p_num", async (req, res) => {
     const product = await Products.findOne({
       attributes: [
         'p_num',
-        'p_name',
-        'p_description',
+        'name',
+        'description',
         'p_status',
         [sequelize.col('m.m_name'), 'm_name'],
         'p_created_at',
       ],
       include: [
         {
-          model: Members,
+          model: USER,
           as: 'm',
           attributes: []
         }
