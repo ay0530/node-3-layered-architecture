@@ -10,8 +10,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/", routes);
-app.use(ValidationErrorHandler);
 app.use(CustomErrorHandler);
+app.use(ValidationErrorHandler);
+
 
 // listen 메서드로 서버 실행
 app.listen(port, () => {

@@ -1,5 +1,5 @@
 
-const CustomErrorHandler = (err, req, res, next) => {
+const CustomErrorHandler = async (err, req, res, next) => {
   if (err.name === 'CustomError') {
     if (err.type === 'UserLoginIdExistError') {
       return res.status(404).json({ message: '이미 존재하는 아이디입니다.' });
@@ -30,6 +30,7 @@ const CustomErrorHandler = (err, req, res, next) => {
       return res.status(404).json({ message: '상품이 존재하지 않습니다.' });
     }
   }
+  next(err);
 };
 
 module.exports = { CustomErrorHandler };
