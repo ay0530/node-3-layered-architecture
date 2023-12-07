@@ -17,20 +17,21 @@ model USER {
   email      String   @unique
   password   String   
   created_at DateTime @default(now()) 
-  updated_at DateTime @updatedAt 
-  post       POST[]
+  updated_at DateTime @default(now())
+  product    PRODUCT[]
 
   @@map("USER")
 }
 
-model POST {
-  id         Int      @id @default(autoincrement()) 
-  user       USER     @relation(fields: [user_id], references: [id])
-  user_id    Int
-  title      String   
-  content    String   @db.Text
-  created_at DateTime @default(now())
-  updated_at DateTime 
+model PRODUCT {
+  id          Int      @id @default(autoincrement()) 
+  user        USER     @relation(fields: [user_id], references: [id])
+  user_id     Int      
+  name        String   
+  description String   @db.Text
+  status      String   @default("FOR_SALE")
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
 
-  @@map("POST")
+  @@map("PRODUCT")
 }
