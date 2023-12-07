@@ -1,6 +1,5 @@
 const express = require("express"); // express 받아오기
 const router = express.Router();
-const jwt = require('jsonwebtoken'); // jwt 패키지 - 인증
 const authMiddleware = require('../../middlewares/auth.middleware.js'); // auth.middleware.js 조회
 const { PrismaClient } = require('@prisma/client'); // prisma 패키지
 const prisma = new PrismaClient();
@@ -27,7 +26,7 @@ router.post("/", authMiddleware, productValidate, async (req, res, next) => {
     });
 
     // 저장 : 상품정보
-    const product = await prisma.PRODUCT.create({
+    await prisma.PRODUCT.create({
       data: {
         user_id: userId.id,
         name,
@@ -37,7 +36,7 @@ router.post("/", authMiddleware, productValidate, async (req, res, next) => {
     await prisma.$disconnect(); // prisma 연결 끊기
     res.status(201).json({ message: "판매 상품을 등록하였습니다." });
   } catch (error) {
-    console.log(error);
+
     next(error);
   }
 });
@@ -89,7 +88,6 @@ router.put("/:id", authMiddleware, productValidate, async (req, res, next) => {
     await prisma.$disconnect(); // prisma 연결 끊기
     res.status(200).json({ message: "상품 정보를 수정하였습니다." });
   } catch (error) {
-    console.log(error);
     next(error);
   }
 });
@@ -110,7 +108,9 @@ router.delete("/:id", authMiddleware, productValidate, async (req, res, next) =>
     const existsProduct = await prisma.PRODUCT.findUnique({
       where: { id: +id }
     });
-    if (!existsProduct) { throw new Error("404-상품미저장err"); }
+    if (!existsProduct) {
+      throw new CustomError(ErrorTypes.ProductDoesNotExistError);
+    }
 
     // ERR 403 : 상품을 등록한 계정이 아닌 경우
     if (userId !== existsProduct.user_id) {
@@ -124,14 +124,12 @@ router.delete("/:id", authMiddleware, productValidate, async (req, res, next) =>
     await prisma.$disconnect(); // prisma 연결 끊기
     res.status(200).json({ message: "상품을 삭제하였습니다." });
   } catch (error) {
-    console.log(error);
     next(error);
   }
 });
 
 // //  상품 정보 전체 조회
 router.get("/", async (req, res, next) => {
-  const errors = validationResult(req);
   const { category, order } = req.query; // req 조회
   const orderByField = {}; // 동적 정렬 필드를 담을 빈 객체 생성
   orderByField[category] = order === 'desc' ? 'desc' : 'asc'; // 동적으로 정렬 필드를 설정
@@ -155,7 +153,6 @@ router.get("/", async (req, res, next) => {
 
 // //  상품 상세 조회
 router.get("/:id", async (req, res, next) => {
-  const errors = validationResult(req);
   try {
     const { id } = req.params; // params 값 조회
     // 조회 : 상품 상세
@@ -174,12 +171,12 @@ router.get("/:id", async (req, res, next) => {
     });
     // ERR 404 : DB에 해당 상품의 Id 값이 존재하지 않은 경우
     if (!product) {
-      throw new Error("404-상품미저장err");
+      throw new CustomError(ErrorTypes.ProductDoesNotExistError);
     }
     await prisma.$disconnect(); // prisma 연결 끊기
     res.status(200).json({ product: product });
   } catch (error) {
-    console.log(error);
+
     next(error);
   }
 });

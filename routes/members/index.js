@@ -9,8 +9,7 @@ const authMiddleware = require('../../middlewares/auth.middleware.js'); // auth.
 // 에러처리
 const { CustomError, ErrorTypes, UserValidError, } = require('../../error-handlers/custom.errors.js');
 const { validationResult } = require('express-validator');
-const { userSignupValidate } = require('../../validator/user.validator.js');
-const { userLoginIdValidate } = require('../../validator/user.validator.js');
+const { userSignupValidate, userLoginIdValidate } = require('../../validator/user.validator.js');
 
 // 회원 정보 저장(CREATE)
 router.post('/signup', userSignupValidate, async (req, res, next) => {
@@ -38,7 +37,7 @@ router.post('/signup', userSignupValidate, async (req, res, next) => {
       throw new CustomError(ErrorTypes.UserEmailExistError);
     }
 
-    // 비밀번호 불일치
+    // ERR 400 : 비밀번호 불일치
     if (password !== confirmPassword) {
       throw new CustomError(ErrorTypes.UserConfirmPwMismatchError);
     }
@@ -59,7 +58,6 @@ router.post('/signup', userSignupValidate, async (req, res, next) => {
 
     res.status(201).json({ userInfo: { login_id, name, email } });
   } catch (error) {
-    console.log(error);
     next(error);
   }
 });
@@ -99,9 +97,7 @@ router.post("/login", userLoginIdValidate, async (req, res, next) => {
     res.cookie("Authorization", `Bearer ${token}`); // res.cookie("Authorization", `Bearer ${token}`) : 쿠키에 토큰 저장
     res.status(200).json({ token: token });
   } catch (error) {
-    console.log(error);
     next(error);
-    console.log(error);
   }
 });
 
@@ -111,9 +107,7 @@ router.get("/me", authMiddleware, async (req, res, next) => {
   try {
     res.status(200).json({ myInfo: { login_id, name, email } });
   } catch (error) {
-    console.log(error);
     next(error);
-    console.log(error);
   }
 });
 
