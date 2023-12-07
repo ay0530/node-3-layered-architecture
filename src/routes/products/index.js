@@ -129,6 +129,7 @@ router.delete("/:id", authMiddleware, productValidate, async (req, res, next) =>
 });
 
 // //  상품 정보 전체 조회
+// eslint-disable-next-line no-unused-vars
 router.get("/", async (req, res, next) => {
   const { category, order } = req.query; // req 조회
   const orderByField = {}; // 동적 정렬 필드를 담을 빈 객체 생성
