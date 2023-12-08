@@ -1,12 +1,12 @@
-const express = require('express'); // express 라이브러리를 변수에 할당
-const routes = require('./routes');
+import express, { json } from 'express'; // express 라이브러리를 변수에 할당
+import routes from './src/routes/index.js';
 const app = express(); // express를 실행해서 app 객체 생성
 const port = 5608; // 서버 포트
-const cookieParser = require('cookie-parser');
-const { CustomErrorHandler } = require('./error-handlers/custom.error.handlers');
-const { ValidationErrorHandler } = require('./error-handlers/validation.error.handler');
+import cookieParser from 'cookie-parser';
+import { CustomErrorHandler } from './src/error-handlers/custom.error.handlers.js';
+import { ValidationErrorHandler } from './src/error-handlers/validation.error.handler.js';
 
-app.use(express.json());
+app.use(json());
 app.use(cookieParser());
 
 app.use("/", routes);

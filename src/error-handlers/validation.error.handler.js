@@ -1,9 +1,9 @@
-const { validationResult } = require('express-validator');
+import { validationResult } from 'express-validator';
 
 const ValidationErrorHandler = (err, req, res, next) => {
   const errors = validationResult(req);
   const path = errors.array()[0].path;
-  if (err.name === 'UserValidError') {
+  if (err.name === 'UsersValidError') {
     if (path === 'name') {
       res
         .status(404)
@@ -30,7 +30,7 @@ const ValidationErrorHandler = (err, req, res, next) => {
         .json({ message: '동일한 비밀번호를 입력해주세요.' });
     }
   }
-  if (err.name === 'ProductValidError') {
+  if (err.name === 'ProductsValidError') {
     if (path === 'name') {
       res.status(404).json({ message: '상품명을 입력해주세요.' });
     }
@@ -44,4 +44,4 @@ const ValidationErrorHandler = (err, req, res, next) => {
   next(err);
 };
 
-module.exports = { ValidationErrorHandler };
+export { ValidationErrorHandler };

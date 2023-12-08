@@ -1,10 +1,11 @@
-require('dotenv').config();
-const jwt = require("jsonwebtoken");
-const { PrismaClient } = require('@prisma/client'); // prisma 패키지
-const prisma = new PrismaClient();
+import dotenv from 'dotenv';
+dotenv.config();
+import jwt from 'jsonwebtoken'; // 패키지를 default로 가져옵니다.
+const { verify } = jwt;
+import { prisma } from '../utils/prisma/index.js';
 
 // 사용자 인증 미들웨어
-module.exports = async (req, res, next) => {
+export default async (req, res, next) => {
   try {
     // 토큰 정보 조회
     const { Authorization } = req.cookies;
@@ -14,7 +15,7 @@ module.exports = async (req, res, next) => {
     if (!authToken || authType !== "Bearer") { throw new Error("401-로그인전"); }
 
     // 조회 : 회원 정보
-    const decoded = await jwt.verify(authToken, process.env.PRIVATE_KEY);
+    const decoded = await verify(authToken, process.env.PRIVATE_KEY);
     const { login_id } = decoded;
 
     const user = await prisma.USER.findMany({
@@ -36,7 +37,6 @@ module.exports = async (req, res, next) => {
     } else if (err.message = "403-토큰유효기간만료") {
       return res.status(403).json({ message: '토큰이 만료되었습니다.' });
     } else {
-      console.log(err);
       res.status(404).send({ errorMessage: "예상치 못한 에러가 발생하였습니다. 관리자에게 문의 바랍니다." });
     }
   }

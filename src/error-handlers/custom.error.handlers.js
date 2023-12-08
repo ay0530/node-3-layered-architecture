@@ -33,4 +33,4 @@ const CustomErrorHandler = async (err, req, res, next) => {
   next(err);
 };
 
-module.exports = { CustomErrorHandler };
+export { CustomErrorHandler };

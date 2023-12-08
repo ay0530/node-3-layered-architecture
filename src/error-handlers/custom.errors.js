@@ -36,18 +36,18 @@ class CustomError extends Error {
   }
 }
 
-class UserValidError extends Error {
+class UsersValidError extends Error {
   constructor(message) {
     super(message);
-    this.name = 'UserValidError';
+    this.name = 'UsersValidError';
   }
 }
 
-class ProductValidError extends Error {
+class ProductsValidError extends Error {
   constructor(message) {
     super(message);
-    this.name = 'ProductValidError';
+    this.name = 'ProductsValidError';
   }
 }
 
-module.exports = { CustomError, ErrorTypes, UserValidError, ProductValidError };
+export { CustomError, ErrorTypes, UsersValidError, ProductsValidError };

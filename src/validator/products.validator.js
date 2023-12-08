@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+import { body } from 'express-validator';
 
 const productValidate = [
   body('name').trim().isLength({ min: 1 }),
@@ -10,4 +10,4 @@ const productValidate = [
   }),
 ];
 
-module.exports = { productValidate };
+export default productValidate;

@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+import { body } from 'express-validator';
 
 const userSignupValidate = [
   body('login_id').trim().isLength({ min: 1 }),
@@ -13,10 +13,4 @@ const userSignupValidate = [
     }),
 ];
 
-const userLoginIdValidate = [
-  body('login_id').trim().isLength({ min: 1 }),
-  body('password').trim().isLength({ min: 6 }),
-];
-
-
-module.exports = { userSignupValidate, userLoginIdValidate };
+export { userSignupValidate };
