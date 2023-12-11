@@ -104,15 +104,14 @@ class ProductsController {
   };
 
   // //  상품 정보 전체 조회
-  // eslint-disable-next-line no-unused-vars
   getProducts = async (req, res, next) => {
     try {
       const { category, order } = req.query; // req 조회
-      const orderByField = {}; // 동적 정렬 필드를 담을 빈 객체 생성
-      orderByField[category] = order === 'desc' ? 'desc' : 'asc'; // 동적으로 정렬 필드를 설정
+      const orderByField = {}; // 정렬 필드 객체 생성
+      orderByField[category] = order === 'desc' ? 'desc' : 'asc';
 
       // 조회 : 모든 상품 정보 
-      const products = await this.productsService.getProducts();
+      const products = await this.productsService.getProducts(orderByField);
 
       // response 반환
       return res.status(200).json({ products });

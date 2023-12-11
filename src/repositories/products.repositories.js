@@ -34,6 +34,9 @@ class ProductsRepository {
             login_id: true,
           },
         },
+      },
+      order: {
+        orderByField
       }
     });
     return products;

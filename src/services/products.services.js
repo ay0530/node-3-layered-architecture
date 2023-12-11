@@ -18,8 +18,8 @@ class ProductService {
   };
 
   // 상품 전체 조회
-  getProducts = async () => {
-    const products = await this.productsRepository.getProducts();
+  getProducts = async (orderByField) => {
+    const products = await this.productsRepository.getProducts(orderByField);
     return products;
   };
 
