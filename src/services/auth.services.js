@@ -4,7 +4,7 @@ const { compare } = bcrypt;
 import { CustomError, ErrorTypes } from '../error-handlers/custom.errors.js'; // custom 에러
 import UsersRepository from '../repositories/users.repositories.js'; // users 레포지토리
 
-class AutoService {
+class AuthService {
   usersRepository = new UsersRepository();
 
   loginUser = async (login_id, password) => {
@@ -31,4 +31,4 @@ class AutoService {
   };
 }
 
-export default AutoService;
+export default AuthService;
