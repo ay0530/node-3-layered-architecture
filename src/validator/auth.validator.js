@@ -5,5 +5,4 @@ const userLoginIdValidate = [
   body('password').trim().isLength({ min: 6 }),
 ];
 
-
 export { userLoginIdValidate };

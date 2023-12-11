@@ -4,16 +4,18 @@ import { CustomError, ErrorTypes, ProductsValidError } from '../error-handlers/c
 import ProductsService from '../services/products.services.js'; // 서비스
 
 class ProductsController {
+  // 
   productsService = new ProductsService();
 
   // // 상품 정보 저장
   createProduct = async (req, res, next) => {
+    // validationResult : express-validator 유효성 검사 실행
     const errors = validationResult(req);
     try {
-      const { name, description } = req.body;    // body 값 조회
-      const { login_id } = res.locals.user;
+      const { name, description } = req.body; // body 값 조회
+      const { login_id } = res.locals.user; // localstroage 값 조회 
 
-      // ERR 400 : 데이터가 하나라도 입력되지 않은 경우
+      // ERR 400 : 필수 값들이 입력되지 않은 경우
       if (!errors.isEmpty()) {
         throw new ProductsValidError();
       }
@@ -33,24 +35,25 @@ class ProductsController {
 
   // //  상품 정보 수정
   updateProduct = async (req, res, next) => {
+    // validationResult : express-validator 유효성 검사 실행
     const errors = validationResult(req);
     try {
       const { id } = req.params; // params 값 조회
       const { name, description, status } = req.body; // body 값 조회
-      const { login_id } = res.locals.user;
+      const { login_id } = res.locals.user; // localstroage 값 조회 
 
-      // ERR 400 : 데이터가 하나라도 입력되지 않은 경우
+      // ERR 400 : 필수 값들이 입력되지 않은 경우
       if (!errors.isEmpty()) {
         throw new ProductsValidError();
       }
+
       // 조회 : 회원 번호 
       const userId = await this.productsService.getUserId(login_id);
-      // const userId = user.id;
 
       // 조회 : 상품 정보
       const product = await this.productsService.getProduct(id);
 
-      // ERR 404 : DB에 해당 상품의 Id 값이 존재하지 않은 경우
+      // ERR 404 : 상품 id가 존재하지 않은 경우
       if (!product) {
         throw new CustomError(ErrorTypes.ProductDoesNotExistError);
       }
@@ -63,6 +66,7 @@ class ProductsController {
       // 수정 : 상품 정보
       await this.productsService.updateProduct(id, name, description, status);
 
+      // response 반환
       res.status(200).json({ message: "상품 정보를 수정하였습니다." });
     } catch (error) {
       next(error);
@@ -73,13 +77,12 @@ class ProductsController {
   deleteProduct = async (req, res, next) => {
     try {
       const { id } = req.params; // params 값 조회
-      const { login_id } = res.locals.user;
+      const { login_id } = res.locals.user; // localstroage 값 조회 
 
       // 조회 : 회원 번호 
       const userId = await this.productsService.getUserId(login_id);
-      // const userId = user.id;
 
-      // ERR 404 : DB에 해당 상품의 Id 값이 존재하지 않은 경우
+      // ERR 404 : 상품 id가 존재하지 않은 경우
       const product = await this.productsService.getProduct(id);
       if (!product) {
         throw new CustomError(ErrorTypes.ProductDoesNotExistError);
@@ -93,6 +96,7 @@ class ProductsController {
       // 삭제 : 상품 정보
       await this.productsService.deleteProduct(id);
 
+      // response 반환
       res.status(200).json({ message: "상품을 삭제하였습니다." });
     } catch (error) {
       next(error);
@@ -102,26 +106,36 @@ class ProductsController {
   // //  상품 정보 전체 조회
   // eslint-disable-next-line no-unused-vars
   getProducts = async (req, res, next) => {
-    const { category, order } = req.query; // req 조회
-    const orderByField = {}; // 동적 정렬 필드를 담을 빈 객체 생성
-    orderByField[category] = order === 'desc' ? 'desc' : 'asc'; // 동적으로 정렬 필드를 설정
-    // 조회 : 상품 전체
-    const products = await this.productsService.getProducts();
-    return res.status(200).json({ products });
+    try {
+      const { category, order } = req.query; // req 조회
+      const orderByField = {}; // 동적 정렬 필드를 담을 빈 객체 생성
+      orderByField[category] = order === 'desc' ? 'desc' : 'asc'; // 동적으로 정렬 필드를 설정
+
+      // 조회 : 모든 상품 정보 
+      const products = await this.productsService.getProducts();
+
+      // response 반환
+      return res.status(200).json({ products });
+    } catch (error) {
+      next(error);
+    }
+
   };
 
   // //  상품 상세 조회
   getProduct = async (req, res, next) => {
     try {
       const { id } = req.params; // params 값 조회
-      // 상품 정보 조회
+
+      // 조회 : 상품 정보 
       const product = await this.productsService.getProduct(id);
 
-      // ERR 404 : DB에 해당 상품의 Id 값이 존재하지 않은 경우
+      // ERR 404 : 상품 id가 존재하지 않은 경우
       if (!product) {
         throw new CustomError(ErrorTypes.ProductDoesNotExistError);
       }
 
+      // response 반환
       res.status(200).json({ product: product });
     } catch (error) {
       next(error);

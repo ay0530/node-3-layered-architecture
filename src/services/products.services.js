@@ -14,7 +14,6 @@ class ProductService {
   // 상품 저장
   createProduct = async (userId, name, description) => {
     const createdPost = await this.productsRepository.createProduct(userId, name, description);
-
     return createdPost;
   };
 

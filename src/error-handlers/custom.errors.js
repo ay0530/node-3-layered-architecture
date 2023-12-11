@@ -1,31 +1,32 @@
 const ErrorTypes = {
-  // // USER, SIGNUP
-  // 아이디(login_id) 중복
+  // // // USER
+  // // SIGN UP
+  // ERR 400 : 아이디 중복
   UserLoginIdExistError: 'UserLoginIdExistError',
 
-  // 이메일 중복
+  // ERR 400 : 이메일 중복
   UserEmailExistError: 'UserEmailExistError',
 
   // // LOGIN
-  // 아이디 존재 하지 않음
+  // ERR 400 : 아이디, 이메일 미존재
   UserloginIdNotExistError: 'UserloginIdNotExistError',
 
-  // 비밀번호 일치하지 않음
+  // ERR 400 : 비밀번호 불일치
   UserPasswordMismatchError: 'UserPasswordMismatchError',
 
   // // AUTHMIDDLEWARE
-  // !authorization, 로그인 필요 시
+  // ERR 401 : 로그인 전일 경우
   LoginRequiredError: 'LoginRequiredError',
 
-  // 토큰 타입 일치하지 않을 떄
+  // ERR 401 : 토큰이 Bearer이 아닐 경우
   TokenTypeMismatchError: 'TokenTypeMismatchError',
 
-  // 토큰 사용자가 존재하지 않을 때, 권한이 없을 때
+  // ERR 403 : 상품을 등록한 계정이 아닌 경우
   TokenUserDoesNotExistError: 'TokenUserDoesNotExistError',
 
-  //// PRODUCT
+  // // PRODUCT
+  // ERR 404 : 상품 id가 존재하지 않은 경우
   ProductDoesNotExistError: 'ProductDoesNotExistError',
-  AllPostsNotExistError: 'AllPostsNotExistError',
 };
 
 class CustomError extends Error {
