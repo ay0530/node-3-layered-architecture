@@ -107,11 +107,11 @@ class ProductsController {
   getProducts = async (req, res, next) => {
     try {
       const { category, order } = req.query; // req 조회
-      const orderByField = {}; // 정렬 필드 객체 생성
-      orderByField[category] = order === 'desc' ? 'desc' : 'asc';
+      const orderBy = {}; // 정렬 필드 객체 생성
+      orderBy[category] = order === 'desc' ? 'desc' : 'asc';
 
       // 조회 : 모든 상품 정보 
-      const products = await this.productsService.getProducts(orderByField);
+      const products = await this.productsService.getProducts(orderBy);
 
       // response 반환
       return res.status(200).json({ products });

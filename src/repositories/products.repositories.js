@@ -23,7 +23,7 @@ class ProductsRepository {
   };
   // 상품 전체 조회
 
-  getProducts = async (orderByField) => {
+  getProducts = async (orderBy) => {
     const products = await prisma.PRODUCT.findMany({
       select: {
         id: true,
@@ -35,9 +35,7 @@ class ProductsRepository {
           },
         },
       },
-      order: {
-        orderByField
-      }
+      orderBy
     });
     return products;
   };
