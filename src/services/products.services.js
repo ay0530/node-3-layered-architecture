@@ -26,7 +26,7 @@ class ProductService {
     const existsProduct = await this.productsRepository.getProduct(id);
 
     // ERR 404 : 상품 id가 존재하지 않은 경우
-    if (!existsProduct) {
+    if (existsProduct.length === 0) {
       throw new CustomError(ErrorTypes.ProductDoesNotExistError);
     }
 
@@ -43,7 +43,7 @@ class ProductService {
     const existsProduct = await this.productsRepository.getProduct(id);
 
     // ERR 404 : 상품 id가 존재하지 않은 경우
-    if (!existsProduct.length) {
+    if (existsProduct.length === 0) {
       throw new CustomError(ErrorTypes.ProductDoesNotExistError);
     }
 
