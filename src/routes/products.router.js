@@ -1,7 +1,7 @@
 import { Router } from "express"; // express 패키지
 const productsRouter = Router();
 import authMiddleware from '../middlewares/need-signin.middleware.js'; // 인증 미들웨어 조회
-import productValidate from '../validator/products.validator.js'; // vaild 에러
+import { productValidate, productUpdateValidate } from '../validator/products.validator.js'; // vaild 에러
 import ProdcutController from '../controllers/products.controller.js'; // 컨트롤러
 const productsController = new ProdcutController();
 
@@ -9,7 +9,7 @@ const productsController = new ProdcutController();
 productsRouter.post("/", authMiddleware, productValidate, productsController.createProduct);
 
 // //  상품 정보 수정
-productsRouter.put("/:id", authMiddleware, productValidate, productsController.updateProduct);
+productsRouter.put("/:id", authMiddleware, productValidate, productUpdateValidate, productsController.updateProduct);
 
 // //  상품 정보 삭제
 productsRouter.delete("/:id", authMiddleware, productsController.deleteProduct);
