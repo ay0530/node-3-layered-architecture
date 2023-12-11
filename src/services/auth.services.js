@@ -1,28 +1,34 @@
-// src/services/users.services.js
+import jwt from 'jsonwebtoken'; // jwt 패키지
+import bcrypt from 'bcrypt'; // bcrypt 패키지
+const { compare } = bcrypt;
+import { CustomError, ErrorTypes } from '../error-handlers/custom.errors.js'; // custom 에러
+import UsersRepository from '../repositories/users.repositories.js'; // users 레포지토리
 
-import UsersRepository from '../repositories/users.repositories.js';
-
-class UsersService {
+class AutoService {
   usersRepository = new UsersRepository();
 
-  getLoginId = async (login_id) => {
-    const existsLoginId = await this.usersRepository.getLoginId(login_id);
-    return existsLoginId;
-  };
-
-  getEmail = async (email) => {
-    const existsEmail = await this.usersRepository.getEmail(email);
-    return existsEmail;
-  };
-
-  createUser = async (login_id, newPassword, name, email) => {
-    await this.usersRepository.createUser(login_id, newPassword, name, email);
-  };
-
-  getUser = async (login_id) => {
+  loginUser = async (login_id, password) => {
+    // 조회 : 회원 정보
     const user = await this.usersRepository.getUser(login_id);
-    return user;
+
+    // ERR 400 : 아이디, 이메일 미존재
+    if (!user) {
+      throw new CustomError(ErrorTypes.UserloginIdNotExistError);
+    }
+
+    // 비밀번호 복호화
+    const passwordValue = user[0].password;
+    const equalPassword = await compare(password, passwordValue);
+
+    // ERR 400 : 비밀번호 불일치
+    if (!equalPassword) {
+      throw new CustomError(ErrorTypes.UserPasswordMismatchError);
+    }
+
+    // 토큰 생성
+    const token = await jwt.sign({ login_id }, process.env.PRIVATE_KEY, { expiresIn: "12h" });
+    return token; // controller로 토큰 반환
   };
 }
 
-export default UsersService;
+export default AutoService;

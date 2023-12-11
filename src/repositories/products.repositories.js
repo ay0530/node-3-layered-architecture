@@ -7,7 +7,7 @@ class ProductsRepository {
       select: { id: true },
       where: { login_id }
     });
-    return userId;
+    return userId.id;
   };
 
   // 상품 저장
@@ -39,11 +39,13 @@ class ProductsRepository {
     });
     return products;
   };
+
   // 상품 상세 조회
   getProduct = async (id) => {
     const product = await prisma.PRODUCT.findMany({
       select: {
         id: true,
+        user_id: true,
         name: true,
         description: true,
         user: {
@@ -54,13 +56,12 @@ class ProductsRepository {
       },
       where: { id: +id }
     });
-
     return product;
   };
 
   // 상품 수정
   updateProduct = async (id, name, description, status) => {
-    await prisma.PRODUCT.update({
+    const product = await prisma.PRODUCT.update({
       data: {
         name,
         description,
@@ -70,6 +71,7 @@ class ProductsRepository {
         id: +id
       }
     });
+    return product;
   };
 
   // 상품 삭제

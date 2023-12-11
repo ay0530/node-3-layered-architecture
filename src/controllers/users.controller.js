@@ -1,9 +1,7 @@
 import dotenv from 'dotenv'; // dotenv 패키지
 dotenv.config();
-import bcrypt from 'bcrypt'; // bcrypt 패키지
-const { hash } = bcrypt;
 import { validationResult } from 'express-validator'; // express 유효성 검사 패키지
-import { CustomError, ErrorTypes, UsersValidError } from '../error-handlers/custom.errors.js'; // custom 에러
+import { UsersValidError } from '../error-handlers/custom.errors.js'; // custom 에러
 import UsersService from '../services/users.services.js'; // 서비스
 
 class UsersController {
@@ -21,31 +19,11 @@ class UsersController {
         throw new UsersValidError();
       }
 
-      // ERR 400 : 아이디 중복
-      const existsLoginId = await this.UsersService.getLoginId(login_id);
-      if (existsLoginId) {
-        throw new CustomError(ErrorTypes.UserLoginIdExistError);
-      }
-
-      // ERR 400 : 이메일 중복
-      const existsEmail = await this.UsersService.getEmail(email);
-      if (existsEmail) {
-        throw new CustomError(ErrorTypes.UserEmailExistError);
-      }
-
-      // ERR 400 : 비밀번호 불일치
-      if (password !== confirmPassword) {
-        throw new CustomError(ErrorTypes.UserConfirmPwMismatchError);
-      }
-
-      // 비밀번호 암호화
-      const newPassword = await hash(password, 10);
-
-      // 저장 : 회원정보
-      await this.UsersService.createUser(login_id, newPassword, name, email);
+      // 저장 : 회원 정보
+      await this.UsersService.createUser(login_id, password, confirmPassword, name, email);
 
       // response 반환
-      res.status(201).json({ userInfo: { login_id, name, email } });
+      res.status(201).json({ message: "회원가입이 완료되었습니다.", data: { login_id, name, email } });
     } catch (error) {
       next(error);
     }
@@ -54,12 +32,13 @@ class UsersController {
   // 내 정보 조회(Read)
   getUser = async (req, res, next) => {
     try {
-      const { login_id, email, name } = res.locals.user; // localstroage 값 조회 
+      const { login_id, email, name } = res.locals.user; // localstroage 값 조회
       // response 반환
-      res.status(200).json({ myInfo: { login_id, name, email } });
+      res.status(200).json({ message: "내 정보 조회가 완료되었습니다.", data: { login_id, name, email } });
     } catch (error) {
       next(error);
     }
   };
 }
+
 export default UsersController;
