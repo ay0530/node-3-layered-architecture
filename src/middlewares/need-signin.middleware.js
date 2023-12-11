@@ -3,6 +3,8 @@ dotenv.config();
 import jwt from 'jsonwebtoken'; // 패키지를 default로 가져옵니다.
 const { verify } = jwt;
 import { prisma } from '../utils/prisma/index.js';
+import { CustomError, ErrorTypes } from '../error-handlers/custom.errors.js'; // custom 에러
+
 
 // 사용자 인증 미들웨어
 export default async (req, res, next) => {
@@ -11,8 +13,15 @@ export default async (req, res, next) => {
     const { Authorization } = req.cookies;
     const [authType, authToken] = (Authorization ?? "").split(" ");
 
-    // ERR 401 : 로그인 전
-    if (!authToken || authType !== "Bearer") { throw new Error("401-로그인전"); }
+    // ERR 401 : 로그인 전일 경우
+    if (!authToken) {
+      throw new CustomError(ErrorTypes.LoginRequiredError);
+    }
+
+    // ERR 401 : 토큰이 Bearer이 아닐 경우
+    if (authType !== "Bearer") {
+      throw new CustomError(ErrorTypes.TokenTypeMismatchError);
+    }
 
     // 조회 : 회원 정보
     const decoded = await verify(authToken, process.env.PRIVATE_KEY);
@@ -26,18 +35,12 @@ export default async (req, res, next) => {
         ]
       }
     });
-
     res.locals.user = user[0];    // localStorage에 user 값 저장
     next();
-  } catch (err) {
-    if (err.name === 'TokenExpiredError') {
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
       throw new Error("403-토큰유효기간만료");
-    } else if (err.message === "401-로그인전") {
-      res.status(401).send({ errorMessage: "로그인 후 이용 가능한 기능입니다." });
-    } else if (err.message = "403-토큰유효기간만료") {
-      return res.status(403).json({ message: '토큰이 만료되었습니다.' });
-    } else {
-      res.status(404).send({ errorMessage: "예상치 못한 에러가 발생하였습니다. 관리자에게 문의 바랍니다." });
     }
+    next(error);
   }
 };

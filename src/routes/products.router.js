@@ -1,6 +1,6 @@
 import { Router } from "express"; // express 패키지
 const productsRouter = Router();
-import authMiddleware from '../middlewares/auth.middleware.js'; // 인증 미들웨어 조회
+import authMiddleware from '../middlewares/need-signin.middleware.js'; // 인증 미들웨어 조회
 import productValidate from '../validator/products.validator.js'; // vaild 에러
 import ProdcutController from '../controllers/products.controller.js'; // 컨트롤러
 const productsController = new ProdcutController();
