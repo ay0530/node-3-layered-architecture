@@ -11,3 +11,7 @@ Content-Type: application/JSON
   "login_id": "test1", 
   "password": "123456"
 }
+
+###
+# 로그아웃
+GET {{domain}}/auth/logout

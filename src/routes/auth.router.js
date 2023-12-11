@@ -7,4 +7,8 @@ const authController = new AuthController();
 // 로그인 및 인증정보 생성CREATE)
 authRouter.post("/login", userLoginIdValidate, authController.loginUser);
 
+// 로그인 및 인증정보 생성CREATE)
+authRouter.get("/logout", authController.logoutUser);
+
+
 export default authRouter;

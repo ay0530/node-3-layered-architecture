@@ -48,6 +48,15 @@ class AutoRepository {
       next(error);
     }
   };
+
+  logoutUser = async (req, res, next) => {
+    try {
+      res.clearCookie('Authorization');
+      res.status(200).json({ message: '로그아웃 되었습니다.' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default AutoRepository;
